@@ -14,14 +14,14 @@ void bsqVerifyExistenceOfPeriodicOrbit( interval _beta, interval _sigma, interva
 {
   try                   // we check negations of all assumptions to throw exceptions, if no exception is thrown existence of the orbit is verified
   {
-    interval C_init = interval(10.);
+    interval C_init = interval(10.)*( _eps.rightBound() );
     int s_init(4); 
     int m(0);
 
     IVector ulr_init( 10 );
 
-    ulr_init(1)=interval(-0.3, 0.3);          // we took these bounds as slightly modified bounds from ZM - seem to work!
-    ulr_init(2)=interval(-0.2, 0.2); 
+    ulr_init(1)=interval(-0.5, 0.5);          // we took these bounds as slightly modified bounds from ZM - seem to work after rescaling! if the dimension is greater than M 
+    ulr_init(2)=interval(-0.2, 0.2);          // then the leftovers are discarded for C/k^s
     ulr_init(3)=interval(-0.157, 0.157); 
     ulr_init(4)=interval(-0.046,0.046); 
     ulr_init(5)=interval(-0.018,0.018); 
@@ -31,12 +31,12 @@ void bsqVerifyExistenceOfPeriodicOrbit( interval _beta, interval _sigma, interva
     ulr_init(9)=interval(-0.0016,0.0016); 
     ulr_init(10)=interval(-0.0011,0.0011);
 
-  
+    ulr_init = ulr_init*( _eps );
+
     PolyBd bsqBd( _beta, _sigma, C_init, s_init, ulr_init, m, M, _eps, _f, _verbose );
-    bsqBd.isolationTest();
 
     int min_no_iters( min_smoothness - s_init + 1 );  // (n+1) iterates are needed to refine the bounds n times
-    int max_no_iters(12);                             // it is easy to fall out of convergence domain of self-consistent bounds so we limit max number of refinements
+    int max_no_iters( min_no_iters + 5 );              // it is easy to fall out of convergence domain of self-consistent bounds so we limit max number of refinements
 
     for( int i=1; i<=max_no_iters+1; i++ )   
     {

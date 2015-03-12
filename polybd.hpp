@@ -18,7 +18,7 @@ public:
   int M;
   interval C;
   int s;
-  IVector ulr;
+  IVector ulr;         // |u_k| <= 2|ulr_k|
   interval beta;
   interval sigma;
   interval eps;
@@ -64,22 +64,22 @@ public:
       IVector temp_ulr(_ulr);
       ulr.resize(2*M);
 
-      for( unsigned int k = 1; k <= temp_ulr.dimension(); k++ )
+      for( int k = 1; k <= M; k++ )
         ulr(k) = temp_ulr(k);
    
-      for( int k = temp_ulr.dimension() + 1; k <=2*M; k++ )
+      for( int k = M + 1; k <=2*M; k++ )
         ulr(k) = interval( (-C/pow(k,s)).leftBound(), (C/pow(k,s)).rightBound() );
     }
   }
 
 
-  interval convolution( int k, int llimit, int rlimit ) // computes convolution \sum u_k * u_k+k1, k1 = llimit...rlimit
+  interval convolution( int k, int llimit, int rlimit ) // computes convolution \sum |u_k| * |u_k+k1|, k1 = llimit...rlimit
                                                         // for rlimit~infty this is ~IS(k)
   {
     interval result(0.);
 
     for( int k1=llimit; k1 <= rlimit; k1++ )
-      result = result + ulr( k1 )*ulr( k1+k );
+      result = result + 4*abs(ulr( k1 ))*abs(ulr( k1+k ));
 
     return result;
   }
@@ -89,7 +89,7 @@ public:
     interval result(0.);
  
     for( int k1 = llimit; k1 <= rlimit; k1++ )
-      result = result + abs(ulr(k1));
+      result = result + 2*abs(ulr(k1));
 
     return result;
   }
@@ -108,14 +108,14 @@ public:
       interval tempSum(0.);
 
       for( int k1 = M-k+1; k1 <= M; k1++ )
-       tempSum = tempSum + ( ( abs(ulr(k1)) )/pow(k+k1,s) )*interval(-1.,1.);
+       tempSum = tempSum + ( ( 2*abs(ulr(k1)) )/pow(k+k1,s) )*interval(-1.,1.);
       
-      result = convolution( k, 1, M-k ) + 2*C*tempSum + ( 4*C*C/( pow(k+M+1,s) * (s-1) * pow(M, s-1) ) )*interval(-1,1);
+      result = convolution( k, 1, M-k )*interval(-1,1) + 2*C*tempSum + ( 4*C*C/( pow(k+M+1,s) * (s-1) * pow(M, s-1) ) )*interval(-1,1);
       return result;
     }
   }
 
-  interval FS( int k ) // computes FS(k) explicitly, maybe we overestimate here and should compute FS_left(k), FS_right(k) but we don't bother (yet)
+  interval FS( int k ) // computes bound for FS(k) explicitly, maybe we overestimate here and should compute FS_left(k), FS_right(k) but we don't bother (yet)
   {
     if( k > 2*M )                                             // some checks we are not out of range with our loop - we had a bug before
       throw "Procedure FS(k) error: k too large! \n";
@@ -125,8 +125,9 @@ public:
     interval result(0.);
 
     for( int k1 = 1; k1 <= k-1; k1++ )
-      result = result + ulr( k1 )*ulr( k-k1 );
+      result = result + 4*abs(ulr( k1 ))*abs(ulr( k-k1 ));
     
+    result = result*interval(-1,1);
     return result;
   }
 
@@ -243,7 +244,7 @@ public:
   interval computeC0norm()
   {
     interval result(0.);
-    result = result + 2*uSum(1,2*M);
+    result = result + uSum(1,2*M);
     result = result + 2*C/( (s-1)*pow(2*M,s-1) );            // integral estimate for the tail terms int_(2*M+1)^infty dx/x^s - see Lemma 3.1 in ZM
   
     return result.rightBound();
