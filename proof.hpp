@@ -48,7 +48,7 @@ void bsqVerifyExistenceOfPeriodicOrbit( interval _beta, interval _sigma, interva
       if( result == 1 && i >= min_no_iters )
       {
         cout << "PROOF OF EXISTENCE OF A PERIODIC ORBIT FOR PARAMETER VALUES BETA = " << _beta << " AND SIGMA = " << _sigma << " COMPLETED! \n";
-        cout << "THE FORCING TERM FOR THE POTENTIAL: " << _eps << "*2*f(t)*(";
+        cout << "The forcing term for the potential: " << _eps << "*2*f(t)*(";
         for( unsigned int k = 1; k <= _f.dimension() - 1; k++ )
           cout << _f(k) << "*cos(" << k << "x) +";
         cout << _f( _f.dimension() ) << "*cos(" << _f.dimension() << "x))\n";
@@ -56,9 +56,12 @@ void bsqVerifyExistenceOfPeriodicOrbit( interval _beta, interval _sigma, interva
 
         cout << "C=" << bsqBd.C << ", s=" << bsqBd.s << ", M=" << bsqBd.M << "\n";
         cout << "Refinement iterates needed: " << i-1 << "\n";
-        cout << "Bound for the C0 norm of solution (i.e. u): " << bsqBd.computeC0norm() << "\n";
         cout << "Bound for the L2 norm of solution (i.e. u): " << bsqBd.computeL2norm() << "\n";
-        cout << "Smoothness of solution (i.e. u, also s in 2C/k^s): C^" << bsqBd.s << "\n \n \n";
+        cout << "Bound for the C0 norm of solution (i.e. u): " << bsqBd.computeC0norm() << "\n";
+        cout << "Bound for the L2 norm of time derivative of solution (i.e. du/dt): " << bsqBd.computeL2DerNorm() << "\n";
+        cout << "Bound for the C0 norm of time derivative of solution (i.e. du/dt): " << bsqBd.computeC0DerNorm() << "\n";
+        cout << "Smoothness of solution (i.e. u, also s in 2C/k^s): C^" << bsqBd.s << "\n";
+        cout << "\n -------------------------- \n \n \n";
         break;
       }
       else
@@ -81,11 +84,12 @@ void bsqVerifyExistenceOfPeriodicOrbit( interval _beta, interval _sigma, interva
   catch(const char* Message)
   {
     cout << Message << "EXISTENCE OF PERIODIC ORBIT FOR PARAMETER VALUES BETA=" << _beta << " AND SIGMA=" << _sigma << " NOT VERIFIED! \n";
-    cout << "THE FORCING TERM FOR THE POTENTIAL: " << _eps << "*2*f(t)*(";
+    cout << "The forcing term for the potential: " << _eps << "*2*f(t)*(";
     for( unsigned int k = 1; k <= _f.dimension() - 1; k++ )
       cout << _f(k) << "*cos(" << k << "x) +";
     cout << _f( _f.dimension() ) << "*cos(" << _f.dimension() << "x))\n";
-    cout << "where f is smooth, 2pi periodic, |f(t)| <= 1 for all t (eg. sint)\n \n \n";
+    cout << "where f is smooth, 2pi periodic, |f(t)| <= 1 for all t (eg. sint)\n";
+    cout << "\n -------------------------- \n \n \n";
   }
 };
 

@@ -24,7 +24,7 @@ int main(){
   time (&start1);
   */
 
-  cout.precision(15);
+  cout.precision(8);
   bool verbose(0);
   
   interval sigma("3.","3.");

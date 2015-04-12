@@ -255,10 +255,36 @@ public:
     interval result(0.);
  
     for( int k1 = 1; k1 <= 2*M; k1++ )
-      result = result + 4*abs(ulr(k1))*abs(ulr(k1));
+      result = result + 4*abs(ulr(k1))*abs(ulr(k1));      
 
-    result = result + (4*C*C) / ( (2*s-1)* pow(2*M, 2*s-1) );
-    result = sqrt(abs(result));
+    result = result + (4*C*C) / ( (2*s-1)* pow(2*M, 2*s-1) );   // ak^2 \leq C^2/k^{2s}
+    result = sqrt(2*interval::pi()*abs(result)); // we use Parsevals theorem \sum a_k^2 = L2 norm/2*pi
+
+
+    return result.rightBound();
+  }
+
+  interval computeC0DerNorm()
+  {
+    interval result(0.);
+ 
+    for( int k1 = 1; k1 <= 2*M; k1++ )
+      result = result + 2*sqrt( k1*k1*(beta*k1*k1-1) )*abs(ulr(k1));
+
+    result = result + 2*C*sqrt(beta)/( (s-3)*pow(2*M,s-3) );            // integral estimate for the tail terms int_(2*M+1)^infty dx/x^(s-2) - see Lemma 3.1 in ZM
+  
+    return result.rightBound();
+  }
+
+  interval computeL2DerNorm()
+  {
+    interval result(0.);
+ 
+    for( int k1 = 1; k1 <= 2*M; k1++ )
+      result = result + 4*sqrt( k1*k1*(beta*k1*k1-1) )*abs(ulr(k1))*abs(ulr(k1));
+
+    result = result + (4*C*C*beta) / ( (2*s-5)* pow(2*M, 2*s-5) );
+    result = sqrt(2*interval::pi()*abs(result));
 
     return result.rightBound();
   }
