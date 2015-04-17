@@ -9,9 +9,13 @@
 /* ----- VERIFICATION OF EXISTENCE OF PERIODIC ORBITS FOR GIVEN PARAMETER VALUES ------ */
 /* ------------------------------------------------------------------------------------ */
 
+// function yields ulr k=1..M and C in that order (as an DVector of size M+1) only purpose for that is to export it later to a .tex table
+// all intervals are symmetric wr to 0 (can be verified by setting verbose=1) so we only give a "rightBound" for the output
 
-void bsqVerifyExistenceOfPeriodicOrbit( interval _beta, interval _sigma, interval _eps, IVector _f, int M, int min_smoothness = 6, bool _verbose=0 ) 
+DVector bsqVerifyExistenceOfPeriodicOrbit( interval _beta, interval _sigma, interval _eps, IVector _f, int M, int min_smoothness = 6, bool _verbose=0 ) 
 {
+  DVector resultVect( M+1 );
+
   try                   // we check negations of all assumptions to throw exceptions, if no exception is thrown existence of the orbit is verified
   {
     interval C_init = interval(10.)*( _eps.rightBound() );
@@ -62,6 +66,11 @@ void bsqVerifyExistenceOfPeriodicOrbit( interval _beta, interval _sigma, interva
         cout << "Bound for the C0 norm of time derivative of solution (i.e. du/dt): " << bsqBd.computeC0DerNorm() << "\n";
         cout << "Smoothness of solution (i.e. u, also s in 2C/k^s): C^" << bsqBd.s << "\n";
         cout << "\n -------------------------- \n \n \n";
+  
+        for( int i = 1; i <= M; i++ )
+          resultVect(i) = bsqBd.ulr(i).rightBound();
+
+        resultVect(M+1) = bsqBd.C.rightBound();
         break;
       }
       else
@@ -91,6 +100,9 @@ void bsqVerifyExistenceOfPeriodicOrbit( interval _beta, interval _sigma, interva
     cout << "where f is smooth, 2pi periodic, |f(t)| <= 1 for all t (eg. sint)\n";
     cout << "\n -------------------------- \n \n \n";
   }
+
+
+  return resultVect;
 };
 
 

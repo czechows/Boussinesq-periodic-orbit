@@ -110,12 +110,12 @@ public:
       for( int k1 = M-k+1; k1 <= M; k1++ )
        tempSum = tempSum + ( ( 2*abs(ulr(k1)) )/pow(k+k1,s) )*interval(-1.,1.);
       
-      result = convolution( k, 1, M-k )*interval(-1,1) + 2*C*tempSum + ( 4*C*C/( pow(k+M+1,s) * (s-1) * pow(M, s-1) ) )*interval(-1,1);
+      result = convolution( k, 1, M-k )*interval(-1,1) + 2*C*tempSum + ( 4*C*C/( pow(k+M+1,s) * (s-1) * pow(M, s-1) ) )*interval(-1,1); // bounds are near 0 hence we can do conv*interval(-1,1)
       return result;
     }
   }
 
-  interval FS( int k ) // computes bound for FS(k) explicitly, maybe we overestimate here and should compute FS_left(k), FS_right(k) but we don't bother (yet)
+  interval FS( int k ) // computes bound for FS(k) explicitly
   {
     if( k > 2*M )                                             // some checks we are not out of range with our loop - we had a bug before
       throw "Procedure FS(k) error: k too large! \n";
@@ -167,13 +167,13 @@ public:
 
     for( int k = m+1; k <= M; k++ )
     {
-      interval G( 2*IS_bound( k ) + FS( k ) );
+      interval G( 2*IS_bound( k ) + FS( k ) ); // G=-N_k(u), see (61)
       ulr( k ) = ( sigma*G - ( eps* f( k )/ (k*k) ) )/( 2*(beta*k*k - 1) );   
     }
 
   }
 
-  bool checkIsolation( int k )
+  bool checkIsolation( int k ) // see (61)
   {
     interval G( 2*IS_bound( k ) + FS( k ) );
 
@@ -191,15 +191,6 @@ public:
       return 0;
   }
 
-  bool verifyBounds() // verifies self-consistent bounds for k >= m
-  {
-    bool result( checkFarTail() );
-
-    for( int k = m+1; k<=M; k++ )
-      result = result*checkIsolation( k );
-    
-    return result;
-  }
 
   bool isolationTest()  // here we unnecesarily repeat some evaluations in verbose part to have more 
                         // self-documented code - to improve efficiency, eg. for rigorous integration I should clean this
@@ -257,7 +248,7 @@ public:
     for( int k1 = 1; k1 <= 2*M; k1++ )
       result = result + 4*abs(ulr(k1))*abs(ulr(k1));      
 
-    result = result + (4*C*C) / ( (2*s-1)* pow(2*M, 2*s-1) );   // ak^2 \leq C^2/k^{2s}
+    result = result + (4*C*C) / ( (2*s-1)* pow(2*M, 2*s-1) );   // ak^2 \leq (2C)^2/k^{2s}
     result = sqrt(2*interval::pi()*abs(result)); // we use Parsevals theorem \sum a_k^2 = L2 norm/2*pi
 
 
